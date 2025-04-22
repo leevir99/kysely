@@ -1,51 +1,60 @@
-main() async {
-  var osoite = 'kysymykset.json';
-  var sisalto = await HttpRequest.getString(osoite);
-  var sanakirja = jsonDecode(sisalto);
+document.addEventListener("DOMContentLoaded", () => {
+  const kysymykset = [];
 
-  var kysymykset = sanakirja['kysymykset'];
+  const vaihtoehdot = [
+    { teksti: "Kyllä", oikein: true },
+    { teksti: "Ei", oikein: false }
+  ];
 
-  querySelector('#seuraava').onClick.listen((e) {
-    kysymykset.shuffle();
+  kysymykset.push({
+    teksti: "Siistiä?",
+    vaihtoehdot: vaihtoehdot
+  });
+
+  kysymykset.push({
+    teksti: "Toimiiko?",
+    vaihtoehdot: vaihtoehdot
+  });
+
+  document.querySelector('#seuraava').addEventListener('click', () => {
+    shuffleArray(kysymykset);
     asetaKysymys(kysymykset[0]);
   });
-  querySelector('#seuraava').onClick.listen((e) {
-    kysymykset.shuffle();
-    asetaKysymys(kysymykset[0]);
-  });
+});
+
+function asetaKysymys(kysymys) {
+  asetaKysymysteksti(kysymys.teksti);
+  asetaVastausvaihtoehdot(kysymys.vaihtoehdot);
 }
 
-asetaKysymys(kysymys) {
-  asetaKysymysteksti(kysymys['teksti']);
-  asetaVastausvaihtoehdot(kysymys['vaihtoehdot']);
+function asetaKysymysteksti(teksti) {
+  document.querySelector('#kysymys').textContent = teksti;
 }
 
-asetaKysymysteksti(teksti) {
-  querySelector('#kysymys').text = teksti;
-}
+function asetaVastausvaihtoehdot(vaihtoehdot) {
+  const container = document.querySelector('#vastaukset');
+  container.innerHTML = '';
 
-asetaVastausvaihtoehdot(vaihtoehdot) {
-  querySelector('#vastaukset').children.clear();
-
-  for (var i = 0; i < vaihtoehdot.length; i++) {
+  for (let i = 0; i < vaihtoehdot.length; i++) {
     lisaaVastausvaihtoehto(vaihtoehdot[i]);
   }
 }
 
-lisaaVastausvaihtoehto(vaihtoehto) {
-  var elementti = Element.div();
+function lisaaVastausvaihtoehto(vaihtoehto) {
+  const elementti = document.createElement('div');
   elementti.className = 'vaihtoehto';
-  elementti.text = vaihtoehto['teksti'];
+  elementti.textContent = vaihtoehto.teksti;
 
-  elementti.onClick.listen((e) {
-    if (vaihtoehto['oikein']) {
-      elementti.text = 'oikein!';
-    } else {
-      elementti.text = 'väärin!';
-    }
+  elementti.addEventListener('click', () => {
+    elementti.textContent = vaihtoehto.oikein ? 'oikein!' : 'väärin!';
   });
 
-  querySelector('#vastaukset').children.add(elementti);
-}
+  document.querySelector('#vastaukset').appendChild(elementti);
 }
 
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
